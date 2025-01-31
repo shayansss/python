@@ -42,10 +42,16 @@
 - `git diff <branch_name>`: Compares the current branch with another branch.
 
 ### **Stashing**
-- `git stash`: Temporarily saves changes that are not staged.
+- `git stash`: Temporarily saves changes.
+- `git stash push -m "Work in progress on feature X"`: Stash with a comment.
+- `git stash --keep-index`: Stash only the changes that are not staged for commit
+  
 - `git stash list`: Lists stashed changes.
 - `git stash apply`: Applies stashed changes without removing them from stash.
+- `git stash apply stash@{1}` Apply a specific stash.
+
 - `git stash pop`: Applies and removes stashed changes.
+- `git stash clear`: Clear them all.
 
 ### **Tagging**
 - `git tag`: Lists all tags.
@@ -68,7 +74,7 @@ A **Git tag** is a reference that points to a specific commit in the Git history
 
 There are two main types of tags in Git:
 
-1. **Lightweight Tags**: A simple reference to a commit, like a pointer or bookmark.
+1. **Lightweight Tags**: A simple reference to a commit, like a pointer.
 2. **Annotated Tags**: A tag that stores extra metadata, including a message, the tagger's name, email, and date. These are often preferred for releases **releases** (e.g., `v1.0`, `v2.3`).
 
 ### Why Use Tags?
@@ -168,40 +174,7 @@ git checkout -b <new_branch_name> <tag_name>
 
 ### Basic Commands and Examples:
 
-#### **1. Stash Changes**
-- To stash your current working changes:
-  ```bash
-  git stash
-  ```
-  Example:
-  - You’ve made some edits to `file1.txt` and `file2.txt` but don’t want to commit yet.
-  - Run:
-    ```bash
-    git stash
-    ```
-  - Git temporarily saves your changes and leaves your working directory clean.
 
-- **Adding a message to the stash** (optional):
-  ```bash
-  git stash push -m "Work in progress on feature X"
-  ```
-
----
-
-#### **2. List Stashes**
-- To view the list of all stashed changes:
-  ```bash
-  git stash list
-  ```
-  Example output:
-  ```
-  stash@{0}: On main: Work in progress on feature X
-  stash@{1}: WIP on main: Added header styles
-  ```
-
-Each stash is identified with an index (e.g., `stash@{0}` is the most recent stash).
-
----
 
 #### **3. Apply Stash**
 - To restore the most recent stash:
