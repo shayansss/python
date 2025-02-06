@@ -1,32 +1,48 @@
 # This cheatsheet is under development
 
 
-### **Setting Up**
-- `git config --global user.name "Your Name"`: Sets your name for commits.
-- `git config --global user.email "you@example.com"`: Sets your email for commits.
+### Setting up repositories
+- `git config` command is used to customize Git behavior with: 
+  - `--global` for user-wide settings. 
+  - `--local` for repository-specific settings. 
+  - `--system` (admin access) for system-wide settings.
 - `git config --list`: Displays the current Git configuration.
+- For connecting to remote repo:
+  - `git config --global user.name "Your Name"`.
+  - `git config --global user.email "you@example.com"`.
+  - Two ways to connect:
+    - `git clone <repository_url>`: Downloads an existing repo.
+      - Once changes are pushed, credentials (e.g., GitHub **access tokens**) are requested.
+      - `git clone -b <branch_name> --single-branch <repository_url>`: Clones a branch.
+      - `git clone --recurse-submodules <repository_url>`: Clones all **submodules** (other repositories inside it).
+    - `git init`: Initializes a repo locally in the current dir, by creating `.git` dir, allowing tracking files. Then:
+      - `git init <directory_name>`: Initializes in a dir.
+      - `git remote add <remote repo alias like origin> <remote_url>`: Adds a remote repository.
+      - `git remote rm origin`: Removes the repo.
+      - `git remote -v`: Verifies it is added.
+      - Exclude files or dirs from being tracked as specified in `.gitignore` [eg.1](https://github.com/shayansss/python/blob/main/git/eg.1).
 
-### **Basic Commands**
-- `git init`: Initializes a new Git repository.
-- `git clone <repository_url>`: Clones an existing repository to your local machine.
+### Adding or removing
+- `git rm <file>`: Removes a file from both the working directory and Git.
+- `git rm --cached .`: Removes all from Git (used especially when we forget to a file set in `.gitignore`).
 - `git status`: Shows the status of changes in the working directory.
-- `git add <file>`: Stages a specific file for commit.
 - `git add .`: Stages all changes for commit.
 - `git commit -m "message"`: Commits staged changes with a descriptive message.
-
-### **Branching and Merging**
-- `git branch`: Lists all branches in the repository.
-- `git branch <branch_name>`: Creates a new branch.
-- `git checkout <branch_name>`: Switches to a different branch.
-- `git switch <branch_name>`: Alternative to `git checkout` for switching branches.
-- `git merge <branch_name>`: Merges the specified branch into the current branch.
-- `git branch -d <branch_name>`: Deletes a branch.
-
-### **Working with Remotes**
-- `git remote -v`: Lists remote repositories.
-- `git remote add origin <repository_url>`: Adds a remote repository.
 - `git pull origin <branch_name>`: Fetches and merges changes from the remote branch.
 - `git push origin <branch_name>`: Pushes local changes to the remote branch.
+- `git push -u origin main`:
+  - Sets the **upstream branch**, i.e., link the local branch to origin/main.
+  - After `git push` and `git pull` alone possible.
+
+### **Branching and Merging**
+- `git branch` or `git branch -a`: Lists all branches in the repository.
+- `git branch <branch_name>`: Creates a new branch.
+- `git branch -d <branch_name>`: Deletes a branch.
+- `git remote -v`: Lists remote repositories.
+- `git checkout <branch_name>` or `git switch <branch_name>`: Switches to a branch.
+- `git checkout -b <branch_name>`: Creates and switches to a branch.
+
+- `git merge <branch_name>`: Merges the specified branch into the current branch.
 
 ### **Undoing Changes**
 - `git checkout -- <file>`: Reverts changes to a specific file (unstaged changes).
@@ -41,7 +57,7 @@
 - `git diff`: Shows differences between working directory and staging area.
 - `git diff <branch_name>`: Compares the current branch with another branch.
 
-### **Stashing**
+### Stashing
 - `git stash`: Temporarily saves changes.
 - `git stash push -m "Work in progress on feature X"`: Stash with a comment.
 - `git stash --keep-index`: Stash only the changes that are not staged for commit
