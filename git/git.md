@@ -34,14 +34,18 @@
   - Sets the **upstream branch**, i.e., link the local branch to origin/main.
   - After `git push` and `git pull` alone possible.
 
-### **Branching and Merging**
-- `git branch` or `git branch -a`: Lists all branches in the repository.
+### Branching
+- `git branch -a`: Lists all branches in the repository.
+  - `git branch`: Lists local branches.
+  - `git branch -r`: Lists remote branches.
 - `git branch <branch_name>`: Creates a new branch.
 - `git branch -d <branch_name>`: Deletes a branch.
 - `git remote -v`: Lists remote repositories.
+  - `git remote -v`: More verbose as it also   
 - `git checkout <branch_name>` or `git switch <branch_name>`: Switches to a branch.
-- `git checkout -b <branch_name>`: Creates and switches to a branch.
+  - `git checkout -b <branch_name>`: Creates and switches to a branch.
 
+### Merging
 - `git merge <branch_name>`: Merges the specified branch into the current branch.
 
 ### **Undoing Changes**
