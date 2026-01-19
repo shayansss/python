@@ -1,4 +1,7 @@
 # Python tutorial for AI and computational statistics (in progress)
 
-## table of contents
-[Processing sequences](/processing_sequences.ipynb)
+## Python
+- [Processing sequences](/processing_sequences.ipynb)
+
+## Others
+- [Git](/git/git.md)
