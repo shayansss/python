@@ -1,5 +1,4 @@
-# This cheatsheet is under development
-
+# GIT
 
 ### Setting up repositories
 - `git config` command is used to customize Git behavior with: 
@@ -20,19 +19,43 @@
       - `git remote add <remote repo alias like origin> <remote_url>`: Adds a remote repository.
       - `git remote rm origin`: Removes the repo.
       - `git remote -v`: Verifies it is added.
-      - Exclude files or dirs from being tracked as specified in `.gitignore` [eg.1](https://github.com/shayansss/python/blob/main/git/eg.1).
+      - Exclude files or dirs from being tracked as specified in `.gitignore` [eg.1](https://github.com/shayansss/python/blob/main/git/eg1.md).
 
-### Adding or removing
-- `git rm <file>`: Removes a file from both the working directory and Git.
-- `git rm --cached .`: Removes all from Git (used especially when we forget to a file set in `.gitignore`).
+### Synching
 - `git status`: Shows the status of changes in the working directory.
 - `git add .`: Stages all changes for commit.
 - `git commit -m "message"`: Commits staged changes with a descriptive message.
+- `git commit --amend --no-edit`: Adds currently staged changes to the last commit (with no message change)
+- `git show`: Shows the last commit (metadata + diff).
 - `git pull origin <branch_name>`: Fetches and merges changes from the remote branch.
 - `git push origin <branch_name>`: Pushes local changes to the remote branch.
 - `git push -u origin main`:
   - Sets the **upstream branch**, i.e., link the local branch to origin/main.
   - After `git push` and `git pull` alone possible.
+
+## Path shortcuts
+* `.` : Current directory: (E.g., `git status .`: Status limited to current directory).
+* `..` : Parent directory: (E.g., `git add ..`: Stage changes from parent directory).
+* `../..` : Two levels up (E.g., `git diff ../..`).
+* `--` : Separator between revisions and paths
+  * Prevents ambiguity between branch names and file names.
+  * E.g., `git checkout -- file.txt`: Restore file (not a branch named `file.txt`)
+  * E.g., `git log -- src/`: History only for `src/`
+
+## Pathspec magic
+* `git add '*.py'`: All Python files.
+* `git add :/pattern`: Search from repo root.
+* `git add :(exclude)tests/`: Exclude path.
+* `git add src/ :(exclude)src/tmp/`
+
+### Adding/removing
+- `git clean -f`: Removes untracked files.
+- `git clean -fd`: Removes untracked files and directories.
+- `git rm <file>`: Removes a file from both the working directory and Git.
+- `git rm -r <dir>`: Removes directory from git + disk.
+- `git blame <file>`: Shows who changed which line (and when).
+- `git grep "pattern"`: Searches in tracked files (fast).
+- `git rm --cached .`: Removes all from Git (used especially when we forget to add a file set in `.gitignore`).
 
 ### Branching
 - `git branch -a`: Lists all branches in the repository.
@@ -40,6 +63,7 @@
   - `git branch -r`: Lists remote branches.
 - `git branch <branch_name>`: Creates a new branch.
 - `git branch -d <branch_name>`: Deletes a branch.
+- `git branch -D <branch_name>`: Force-deletes a branch.
 - `git remote -v`: Lists remote repositories.
   - `git remote -v`: More verbose as it also   
 - `git checkout <branch_name>` or `git switch <branch_name>`: Switches to a branch.
@@ -47,6 +71,26 @@
 
 ### Merging
 - `git merge <branch_name>`: Merges the specified branch into the current branch.
+- `git rebase <branch_name>`: Reapplies commits on top of another branch (more linear than merging).
+- `git rebase -i <base>`: Interactively rewrite commit history starting from <base> [eg.3](https://github.com/shayansss/python/blob/main/git/eg3.md).
+
+## Revision shortcuts
+* `HEAD`: Current commit.
+* `HEAD~1`: Parent of current commit.
+  * E.g., `git diff HEAD~1`
+  * E.g., `git reset --hard HEAD~1`
+* `HEAD~2`: Two commits before HEAD.
+* `HEAD^`: First parent (important in merges).
+* `HEAD^2`: Second parent of a merge commit.
+* `@`: Alias for `HEAD` (same thing).
+
+## Range notation
+* Double dot `A..B`: Commits in B that are NOT in A.
+  * E.g., `git log --oneline --decorate --graph HEAD~5..HEAD`
+  * Used to see what will be merged.
+* Triple dot `A...B`: Commits reachable from either A or B but not both.
+  * E.g., `git diff origin/main...HEAD`
+  * Used understand how far branches diverged.
 
 ### **Undoing Changes**
 - `git checkout -- <file>`: Reverts changes to a specific file (unstaged changes).
@@ -60,16 +104,22 @@
 - `git log --oneline`: Shows a condensed commit history.
 - `git diff`: Shows differences between working directory and staging area.
 - `git diff <branch_name>`: Compares the current branch with another branch.
+- `git restore -p <file>`: Shows or discards changes piece by piece: [eg2](https://github.com/shayansss/python/blob/main/git/eg2.md).
+
+## Diff with ranges
+
+* `git diff A..B`: Changes from A → B.
+* `git diff A...B`: Changes from merge-base → B.
+* `git diff HEAD -- file.py`: Diff file vs last commit.
+* `git diff --cached`: Staged vs last commit.
 
 ### Stashing
 - `git stash`: Temporarily saves changes.
 - `git stash push -m "Work in progress on feature X"`: Stash with a comment.
 - `git stash --keep-index`: Stash only the changes that are not staged for commit
-  
 - `git stash list`: Lists stashed changes.
 - `git stash apply`: Applies stashed changes without removing them from stash.
 - `git stash apply stash@{1}` Apply a specific stash.
-
 - `git stash pop`: Applies and removes stashed changes.
 - `git stash clear`: Clear them all.
 
@@ -81,205 +131,3 @@
 ### **Collaboration**
 - `git fetch`: Fetches updates from the remote repository without merging.
 - `git cherry-pick <commit_hash>`: Applies a specific commit to the current branch.
-- `git rebase <branch_name>`: Reapplies commits on top of another branch.
-
-### **Cleaning Up**
-- `git clean -f`: Removes untracked files.
-- `git clean -fd`: Removes untracked files and directories.
-
-
-### What is a Git Tag?
-
-A **Git tag** is a reference that points to a specific commit in the Git history. Tags are typically used to mark important milestones in a project's development, making it easier to reference specific versions of the code.
-
-There are two main types of tags in Git:
-
-1. **Lightweight Tags**: A simple reference to a commit, like a pointer.
-2. **Annotated Tags**: A tag that stores extra metadata, including a message, the tagger's name, email, and date. These are often preferred for releases **releases** (e.g., `v1.0`, `v2.3`).
-
-### Why Use Tags?
-- **Versioning**: Tags are commonly used to mark specific releases (e.g., `v1.0`, `v2.1-beta`).
-- **Rollbacks**: If an issue arises, you can easily revert to a specific version of your code.
-- **Reference Points**: Tags make it easy to find and compare specific commits in the Git history.
-
-### How to Work with Git Tags
-
-#### **1. List Tags**
-- `git tag`: Lists all existing tags in your repository.
-- `git tag --list "v1.*"`: Filters and lists tags matching a specific pattern.
-
-#### **2. Create Tags**
-- **Lightweight Tag**:
-  ```bash
-  git tag <tag_name>
-  ```
-  Example:
-  ```bash
-  git tag v1.0
-  ```
-
-- **Annotated Tag**:
-  ```bash
-  git tag -a <tag_name> -m "Message describing the tag"
-  ```
-  Example:
-  ```bash
-  git tag -a v1.0 -m "First stable release"
-  ```
-
-#### **3. View a Specific Tag**
-- `git show <tag_name>`: Displays details of the tagged commit, including the message for annotated tags.
-
-#### **4. Push Tags to a Remote Repository**
-By default, tags are not automatically pushed to the remote repository. You need to push them explicitly:
-- Push a single tag:
-  ```bash
-  git push origin <tag_name>
-  ```
-- Push all tags:
-  ```bash
-  git push origin --tags
-  ```
-
-#### **5. Delete Tags**
-- Delete a local tag:
-  ```bash
-  git tag -d <tag_name>
-  ```
-  Example:
-  ```bash
-  git tag -d v1.0
-  ```
-
-- Delete a remote tag:
-  ```bash
-  git push origin --delete <tag_name>
-  ```
-  Example:
-  ```bash
-  git push origin --delete v1.0
-  ```
-
-#### **6. Checkout a Tag**
-If you want to check out the code associated with a tag:
-```bash
-git checkout <tag_name>
-```
-However, this puts your repository into a **detached HEAD state**, meaning you’re not on any branch. If you want to create a branch from this tag:
-```bash
-git checkout -b <new_branch_name> <tag_name>
-```
-
----
-
-### What is `git stash`?
-
-`git stash` is a Git command used to temporarily save changes in your working directory without committing them. It is helpful when you need to switch branches or work on something else without losing your current progress. Stashing saves your changes on a "stack," allowing you to come back and restore them later.
-
----
-
-### Key Features of `git stash`:
-- Temporarily saves **uncommitted changes** (both staged and unstaged).
-- Clears your working directory, allowing you to work on other tasks.
-- Can restore stashed changes at any time.
-
----
-
-### Common Use Cases:
-1. **Switching branches**: You are working on a feature but need to switch to another branch to address an urgent issue.
-2. **Experimentation**: You want to test something out but don’t want to risk losing your current changes.
-3. **Clean workspace**: You want to quickly stash your changes and pull the latest updates.
-
----
-
-### Basic Commands and Examples:
-
-
-
-#### **3. Apply Stash**
-- To restore the most recent stash:
-  ```bash
-  git stash apply
-  ```
-  This restores the stashed changes but **keeps the stash in the list**.
-
-- To apply a specific stash:
-  ```bash
-  git stash apply stash@{1}
-  ```
-
----
-
-#### **4. Remove Stash After Applying**
-- If you’ve restored your stash and no longer need it, use:
-  ```bash
-  git stash drop stash@{0}
-  ```
-  Or combine applying and dropping in one command:
-  ```bash
-  git stash pop
-  ```
-  This applies the most recent stash and **removes it from the list**.
-
----
-
-#### **5. Stash Only Unstaged Changes**
-- If you want to stash only **unstaged changes** while keeping staged changes:
-  ```bash
-  git stash --keep-index
-  ```
-
----
-
-#### **6. Stash Specific Files**
-- If you don’t want to stash all changes, you can stash specific files:
-  ```bash
-  git stash push <file>
-  ```
-  Example:
-  ```bash
-  git stash push file1.txt
-  ```
-
----
-
-#### **7. Clear All Stashes**
-- To delete all stashed changes:
-  ```bash
-  git stash clear
-  ```
-
----
-
-#### **8. Show Stash Details**
-- To see what’s inside a stash:
-  ```bash
-  git stash show stash@{0}
-  ```
-  Add `-p` for a detailed view of changes:
-  ```bash
-  git stash show -p stash@{0}
-  ```
-
----
-
-### Workflow Example:
-
-1. You're working on `main` and make changes to `file1.txt` and `file2.txt`.
-2. You need to quickly fix an issue in another branch (`hotfix`):
-   ```bash
-   git stash
-   git checkout hotfix
-   ```
-3. After fixing the issue, return to `main` and restore your changes:
-   ```bash
-   git checkout main
-   git stash apply
-   git stash drop
-   ```
-
----
-
-### Key Tips:
-- Always provide descriptive messages when stashing (`git stash push -m "message"`) so you can track what’s in each stash.
-- Remember that stashing only saves **uncommitted changes**. Committed changes are safe and do not need stashing.
