@@ -4,4 +4,4 @@
 - [Processing sequences](/processing_sequences.ipynb)
 
 ## Others
-- [Git](/git/git.md)
+- [Git](/git)
