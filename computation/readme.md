@@ -1,9 +1,9 @@
 This section is in progress
 
-- [ ] combinatorics.md
-- [ ] grids.md
+- [x] combinatorics.md
+- [x] grids.md
 - [ ] broadcasting.md
-- [ ] indexing.md
+- [x] indexing.md
 - [ ] reshaping.md
 - [ ] stacking.md
 - [ ] random_sampling.md
