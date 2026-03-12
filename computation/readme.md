@@ -1,4 +1,4 @@
-This section is in progress
+This section is in progress:
 
 - [x] combinatorics.md
 - [x] grids.md
