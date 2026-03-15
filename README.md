@@ -3,5 +3,5 @@
 ## Python
 - [Processing sequences](/processing_sequences.ipynb)
 
-## Others
+## Appendix
 - [Git](/git)
