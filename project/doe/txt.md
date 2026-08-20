@@ -1401,24 +1401,24 @@ $$
 
 With the common constraint $\bar\beta=0$, this becomes:
 
-$$
+$
 E(S_p^2)
 =
 \sigma^2
 +
 \frac{1}{n-1}
 \sum_{j=1}^{n}\beta_j^2
-$$
+$
 
 The second term is nuisance variation among specimens. It inflates the error estimate when the blocking is ignored. In the paired differences, the block effect cancels, leaving the comparison to depend only on within-specimen variation. This is why blocking is called a **noise-reduction design technique**.
 
 Another way to express the same idea is through within-pair correlation. If the two measurements have standard deviations $\sigma_1$ and $\sigma_2$ and correlation $\rho$, then:
 
-$$
-\operatorname{Var}(Y_1-Y_2)
+```math
+\mathrm{Var}(Y_1 - Y_2)
 =
-\sigma_1^2+\sigma_2^2-2\rho\sigma_1\sigma_2
-$$
+\sigma_1^2 + \sigma_2^2 - 2\rho\sigma_1\sigma_2
+```
 
 Good matching usually creates positive correlation, so the last term reduces the variance of the differences. Pairing provides little benefit when the match is weak and may be inefficient when the within-pair correlation is negative.
 
