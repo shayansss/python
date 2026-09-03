@@ -1,11 +1,6 @@
 # Comparing Two Treatments
 
-- Compare two conditions, treatments, recipes, methods, or processes.
-- Decide whether the sample difference suggests a real population difference.
-- Use **statistical hypothesis testing** as the analysis framework.
-- Use a **two-sample t-test** for independent groups and a **paired t-test** for matched observations.
-- Choose the pooled or Welch version of the independent two-sample test according to the variance assumptions.
-- Use confidence intervals to describe the size and uncertainty of the estimated difference.
+This chapter explains how to compare two treatments using statistical inference, from visualizing sample data to testing differences in population means. It covers independent and paired t-tests, pooled and Welch methods, assumptions, P-values, and confidence intervals.
 
 ## Basic Visualization
 
@@ -21,19 +16,160 @@ Sample data can be summarized numerically with:
 
 These summaries describe the center and spread of the observed data. While we may have same parameters for **population**.
 
-[Graphical summaries: sample vs. population](review_basic_statistics.ipynb)
+<details>
+<summary>Graphical summaries: sample vs. population</summary>
+
+[Open the graphical summaries notebook](review_basic_statistics.ipynb)
 
 Graphical summaries help reveal center, spread, and shape.
+
 - Box plots summarize data using (25th and 75th) percentiles, medians, and whiskers (min and max).
 - For small samples, dot diagrams or stem-and-leaf plots are usually easier to read than histograms.
 
-## Representative Example With Hypothesis Testing
+</details>
 
-[Example: Portland cement visual comparison](portland_cement_example.ipynb)
+## Basic Hypothesis Testing
 
-> Is there statistical evidence that the mean tension bond strength is the same for the two mortar recipes?
+<details>
+<summary>A hypothesis test determines whether sample evidence is too unusual under a null claim to be explained reasonably by sampling variation alone.</summary>
 
-This question leads into the **two-sample t-test** as a method of **statistical hypothesis testing**.
+Because different random samples produce different results, an observed difference does not automatically imply a real population difference. Hypothesis testing therefore follows conditional logic:
+
+1. Temporarily assume that the null hypothesis is true.
+2. Determine which results would be expected under that assumption.
+3. Compare the observed result with those expected results.
+4. Reject the assumption only when the observed evidence is sufficiently incompatible with it.
+
+</details>
+
+### State the Hypotheses
+
+Let $\theta$ denote the population parameter of interest and $\theta_0$ the value being tested:
+
+
+| Null hypothesis | Alternative hypothesis | Test type |
+| --- | --- | --- |
+| $H_0:\theta=\theta_0$ | $H_1:\theta\ne\theta_0$ | Two-sided |
+| $H_0:\theta\leq\theta_0$ | $H_1:\theta>\theta_0$ | Upper-tailed |
+| $H_0:\theta\geq\theta_0$ | $H_1:\theta<\theta_0$ | Lower-tailed |
+
+
+<details>
+
+- The **null hypothesis**, $H_0$, is the baseline claim used to calculate probabilities.
+- The **alternative hypothesis**, $H_1$, describes the effect or difference for which evidence is sought.
+- The null hypothesis always includes equality; the test is calculated at the boundary $\theta=\theta_0$.
+
+</details>
+
+
+### Sampling Variation and Standard Error
+
+Suppose $\hat\theta$ is a sample estimate of $\theta$. Its value changes from sample to sample. The probability distribution of $\hat\theta$ across repeated samples is its **sampling distribution**.
+
+The **standard error** measures the standard deviation of that sampling distribution:
+
+$$
+SE(\hat\theta)
+=
+\sqrt{\operatorname{Var}(\hat\theta)}
+$$
+
+Standard errors generally decrease as the sample size increases, although their exact formula depends on the design and estimator.
+
+### Construct a Test Statistic
+
+A test statistic compares the estimated effect with its value under $H_0$ and scales the difference by its standard error:
+
+$$
+\text{test statistic}
+=
+\frac{\text{estimate}-\text{hypothesized value}}
+{\text{standard error of the estimate}} =
+\frac{\hat\theta-\theta_0}
+{SE(\hat\theta)}
+$$
+
+- A value near zero is usually consistent with $H_0$, whereas a value far from zero may support $H_1$.
+- The **null distribution** or **reference distribution** describes the possible values of $T$ (test statistic) when $H_0$ is true.
+
+### Choose a Significance Level
+
+**Type I error**: The significance level $\alpha$ is selected before analyzing the data. It is the maximum long-run probability of rejecting $H_0$ when it is actually true:
+
+$$
+P(\text{reject }H_0\mid H_0\text{ is true})\leq\alpha
+$$
+
+Common choices include $\alpha=0.05$ and $\alpha=0.01$.
+
+**Type II error**: it occurs when the test fails to reject $H_0$ even though a specified alternative value $\theta_a$ is true. Its probability is denoted by $\beta(\theta_a)$:
+
+$$
+P_{\theta_a}(\text{fail to reject }H_0)=\beta(\theta_a)
+$$
+
+The **power** of a test is the probability of detecting that alternative:
+
+$$
+\text{Power at }\theta_a=1-\beta(\theta_a)
+$$
+
+| Reality | Reject $H_0$ | Fail to reject $H_0$ |
+| --- | --- | --- |
+| $H_0$ is true | Type I error, probability $\alpha$ | Correct decision |
+| $H_1$ is true | Correct decision; power $1-\beta$ | Type II error, probability $\beta$ |
+
+Reducing $\alpha$ without increasing the sample size can reduce power, so error rates should be considered during experimental design rather than only after data collection.
+
+### Use a Critical Value or P-Value
+
+Two equivalent approaches can be used at the same significance level:
+
+- **Critical-value approach:** Use the null distribution to define a rejection region whose total probability under $H_0$ is $\alpha$. Reject $H_0$ when the test statistic falls in that region.
+- **P-value approach:** Calculate the probability, assuming $H_0$ is true, of obtaining a test statistic at least as extreme as the observed value in the direction specified by $H_1$.
+
+E.g., for a symmetric two-sided test, the critical-value rule often has the form:
+
+$$
+\text{Reject }H_0
+\quad\text{when}\quad
+|T|>c_{\alpha/2}
+$$
+
+The P-value decision rule is:
+
+$$
+\begin{cases}
+\text{Reject }H_0, & \text{if P-value}\leq\alpha,\\
+\text{Fail to reject }H_0, & \text{if P-value}>\alpha.
+\end{cases}
+$$
+
+The P-value is the smallest significance level at which the observed result would be rejected by the same test.
+
+### Relationship With Confidence Intervals
+
+A hypothesis test gives a decision about a specified value, whereas a confidence interval shows a range of parameter values compatible with the data. For a two-sided test of:
+
+$$
+H_0:\theta=\theta_0
+$$
+
+at significance level $\alpha$, the matching $100(1-\alpha)\%$ confidence interval gives the same decision when both use the same model and assumptions:
+
+$$
+\theta_0\notin\text{confidence interval}
+\quad\Longleftrightarrow\quad
+\text{reject }H_0
+$$
+
+The interval is usually more informative because it displays both the estimated effect size and its precision.
+
+
+## Applying Hypothesis Testing to Two Treatments
+
+The general framework can now be applied to two treatments. Here, the parameter of interest is the difference between two population means, $\mu_1-\mu_2$, and the sample estimate is $\bar y_1-\bar y_2$.
 
 ### Sampling Situation
 
@@ -41,7 +177,6 @@ The hypothesis-testing picture starts with two probability distributions:
 
 - Population 1: measurements from factor level 1, or treatment 1.
 - Population 2: measurements from factor level 2, or treatment 2.
-- In the Portland cement problem, the two populations represent the two mortar formulations.
 
 Assumptions:
 
@@ -49,11 +184,9 @@ Assumptions:
 - Population 1 has mean $\mu_1$ and variance $\sigma_1^2$.
 - Population 2 has mean $\mu_2$ and variance $\sigma_2^2$.
 
-### Hypotheses
+### Parameters and Hypotheses
 
-The claim being investigated is that the two population means are the same.
-
-The hypotheses are:
+For a two-sided comparison, equality of the population means is the null hypothesis:
 
 $$
 H_0: \mu_1 = \mu_2
@@ -63,12 +196,24 @@ $$
 H_1: \mu_1 \ne \mu_2
 $$
 
-- $H_0$ is the **null hypothesis**.
-- $H_0$ says the two means are equal.
-- $H_1$ is the **alternative hypothesis**.
-- $H_1$ says the two means are not the same.
+Equivalently, these hypotheses test whether the population mean difference is zero:
 
-## Mortar Summary Statistics
+$$
+H_0:\mu_1-\mu_2=0
+\qquad\text{versus}\qquad
+H_1:\mu_1-\mu_2\ne0
+$$
+
+<details>
+<summary>Example: Portland cement setup and visual comparison</summary>
+
+[Open the Portland cement notebook](portland_cement_example.ipynb)
+
+The example asks whether there is statistical evidence that the mean tension bond strength differs between two mortar recipes. The two populations represent the two mortar formulations, so the question leads naturally to a two-sample hypothesis test.
+
+</details>
+
+## Summary Statistics
 
 Each population has:
 
@@ -93,7 +238,8 @@ $$
 s^2 = \frac{\sum_{i=1}^{n}(y_i - \bar{y})^2}{n - 1}
 $$
 
-### Results for the Mortar Data
+<details>
+<summary>Example: Portland cement sample summaries</summary>
 
 The standard deviations are not exactly the same, but they are fairly close.
 
@@ -102,6 +248,8 @@ This agrees with the earlier dot diagrams and stem-and-leaf plots:
 - The sample means looked noticeably different.
 - The sample spreads looked fairly similar.
 - The summary statistics reflect the same pattern.
+
+</details>
 
 ### Test Statistic Idea
 
@@ -113,10 +261,10 @@ $$
 
 The procedure uses the sample means to draw conclusions about the population means.
 
-The key quantity is the difference in sample means, e.g.:
+The key quantity is the difference in sample means:
 
 $$
-\bar{y}_1 - \bar{y}_2 = -0.28
+\bar{y}_1 - \bar{y}_2
 $$
 
 The test divides the difference in sample means by the standard deviation of that difference.
@@ -144,12 +292,7 @@ $$
 \frac{\sigma_2^2}{n_2}
 $$
 
-The independence assumption is reasonable here because:
-
-- The two samples are completely different samples.
-- They were generated at different times.
-- They are random samples.
-- The treatments were applied essentially in random sequence.
+This formula requires the two sample means to be independent. Independence is generally supported when the samples contain different experimental units and observations are obtained through random sampling or randomized treatment assignment.
 
 ### Known-Variance Statistic
 
@@ -166,76 +309,40 @@ $$
 - If $\sigma_1^2$ and $\sigma_2^2$ were known, $z_0$ would follow a normal distribution.
 - If $\mu_1 = \mu_2$, then $z_0$ would follow a standard normal distribution with mean 0 and variance 1.
 
-### Fixed Significance Level Test
+### Applying the Critical-Value Rule
 
-The question is how unusual, e.g., $z_0 = -2.09$, would be if the two population means were really equal.
+If $H_0$ is true, $z_0$ has a standard normal distribution. For a two-sided test with significance level $\alpha$, reject the null hypothesis when:
 
-If $H_0$ is true, then $z_0$ has a standard normal distribution.
+$$
+|z_0|>z_{\alpha/2}
+$$
 
-For a standard normal distribution:
+and fail to reject it when $|z_0|\leq z_{\alpha/2}$. The critical value is selected before analyzing the data; at $\alpha=0.05$, it is $z_{0.025}=1.96$.
 
-- 95% of the probability lies between $-1.96$ and $+1.96$.
-- $+1.96$ is the upper 2.5% point of the standard normal distribution.
-- It is denoted $z_{0.025}$.
-- $-1.96$ is the lower 2.5% point.
+<details>
+<summary>Example: Portland cement fixed-level Z-test</summary>
 
-So, if the population means are equal:
+For the Portland cement data, the illustrative known-variance statistic is $z_0=-2.09$. Because:
 
-- Most observed $z_0$ values should fall between $-1.96$ and $+1.96$.
-- A value like $z_0 = -2.09$ is unusual.
-- It would occur less than 5% of the time if the population means were equal.
-- This is evidence that the population means may not be equal.
+$$
+|z_0|=2.09>1.96
+$$
 
-A statistician would say:
+the statistic falls in the rejection region. At the 5% significance level, reject $H_0$ and conclude that the population means may differ.
 
-- Reject the null hypothesis at the 5% level of significance.
-- The result is a fairly strong indication that the two means are not equal.
+</details>
 
-This is a **fixed significance level test** because:
-
-- The test statistic is compared with a **critical value**.
-- The critical value, here 1.96, is selected in advance before running the experiment.
-- The standard normal distribution is the **reference distribution** for this known-variance test.
-
-### P-Value: Alternative Approach
+### Applying the P-Value Rule
 
 Another common approach is the **P-value approach**.
 
 - The P-value is the smallest significance level at which the observed result would lead to rejection of $H_0$.
 - It measures how incompatible the observed test statistic is with $H_0$.
-- For the Z-test, the P-value is easy to find from the standard normal distribution.
-
-For the Portland cement example, the observed statistic is:
-
-$$
-z_0=-2.09
-$$
-
-Because the standard normal table contains areas to the left of positive $z$ values, use the absolute value:
-
-$$
-|z_0|=2.09
-$$
-
-The table gives:
-
-$$
-P(Z\leq 2.09)=\Phi(2.09)=0.98169
-$$
-
-Therefore, the area in the upper tail is:
-
-$$
-P(Z>2.09)=1-0.98169=0.01831
-$$
-
-The alternative hypothesis is two-sided, so equally extreme results in both tails must be counted:
+- For a two-sided Z-test, equally extreme results in both tails are counted:
 
 $$
 \text{P-value}
 =2P(Z>|z_0|)
-=2(0.01831)
-=0.03662
 $$
 
 The decision rule is:
@@ -243,39 +350,31 @@ The decision rule is:
 - Reject $H_0$ when $\text{P-value}\leq\alpha$.
 - Fail to reject $H_0$ when $\text{P-value}>\alpha$.
 
-At the usual $\alpha=0.05$ level:
+> **Interpretation caution:** A P-value is not the probability that $H_0$ is true. It is the probability, assuming $H_0$ is true, of observing a test statistic at least as extreme as the one calculated.
+
+<details>
+<summary>Example: Portland cement Z-test P-value</summary>
+
+For $z_0=-2.09$, use $|z_0|=2.09$. The standard normal table gives:
 
 $$
-0.03662<0.05
+P(Z\leq2.09)=\Phi(2.09)=0.98169
 $$
 
-Therefore, reject $H_0$. The data provide evidence that the two mortar formulations have different mean tension bond strengths.
-
-The same result would be obtained for any selected significance level $\alpha\geq0.03662$, but not for a stricter level such as $\alpha=0.01$.
-
-> **Interpretation caution:** A P-value of 0.03662 is not the probability that $H_0$ is true. It is the probability, assuming $H_0$ is true, of observing a test statistic at least as extreme as the one calculated.
-
-### Choosing the Significance Level
-
-The significance level $\alpha$ is selected according to the context and the consequences of an incorrect conclusion.
-
-- $\alpha=0.05$ is common in science and engineering, but it is not a universal or magical cut-off.
-- Smaller values, such as 0.01 or 0.02, demand stronger evidence before rejecting $H_0$.
-- Larger values, such as 0.10 or 0.15, may be considered during early exploratory experiments when missing a potentially important factor would be costly.
-
-The significance level controls the probability of a **Type I error**:
+Therefore, the two-sided P-value is:
 
 $$
-\text{Type I error: reject }H_0\text{ when }H_0\text{ is actually true}
+\begin{aligned}
+\text{P-value}
+&=2P(Z>2.09)\\
+&=2(1-0.98169)\\
+&=0.03662
+\end{aligned}
 $$
 
-In factor-screening language, a Type I error means calling a factor important when it is not. The opposite error is:
+Since $0.03662<0.05$, reject $H_0$. The data provide evidence that the two mortar formulations have different mean tension bond strengths. The result would not be significant at the stricter $\alpha=0.01$ level.
 
-$$
-\text{Type II error: fail to reject }H_0\text{ when }H_1\text{ is actually true}
-$$
-
-During early discovery work, a Type II error can cause a genuinely important factor to be discarded and ignored in later experiments. This trade-off is why the choice of $\alpha$ should depend on the purpose of the study.
+</details>
 
 ## From the Z-Test to the Two-Sample t-Test
 
@@ -353,187 +452,92 @@ t_0=
 {\text{noise: estimated standard error of the difference}}
 $$
 
-## Portland Cement Pooled t-Test
+### Reference Distribution and Decision Rules
+
+The t-distribution is symmetric around zero, like the standard normal distribution, but has heavier tails. Its shape depends on the degrees of freedom, and its heavier tails account for the uncertainty introduced by estimating variance from small samples.
+
+For a two-sided pooled t-test, the critical-value rule is:
+
+$$
+\text{Reject }H_0
+\quad\text{when}\quad
+|t_0|>t_{\alpha/2,\,n_1+n_2-2}
+$$
+
+The equivalent two-sided P-value is:
+
+$$
+\text{P-value}
+=P\left(|T_\nu|\geq|t_0|\right)
+=2P\left(T_\nu\geq|t_0|\right)
+$$
+
+Reject $H_0$ when $\text{P-value}\leq\alpha$. A t-table can bracket the P-value between listed tail probabilities, while statistical software provides a more precise value.
+
+<details>
+<summary>Example: Portland cement pooled t-test</summary>
 
 For the two mortar samples:
 
 $$
-n_1=n_2=10
-$$
-
-The pooled variance and pooled standard deviation are:
-
-$$
-s_p^2=0.081
-$$
-
-$$
-s_p=\sqrt{0.081}=0.284
+n_1=n_2=10,
+\qquad
+s_p^2=0.081,
+\qquad
+s_p=0.284
 $$
 
 Substitution into the pooled t-statistic gives:
 
 $$
-t_0=-2.20
+t_0=-2.20,
+\qquad
+\nu=n_1+n_2-2=18
 $$
 
-Thus, the two sample means are a little more than two estimated standard errors apart.
-
-### Reference Distribution and Degrees of Freedom
-
-The number of degrees of freedom is:
-
-$$
-\nu=n_1+n_2-2=10+10-2=18
-$$
-
-The t-distribution is symmetric around zero, like the standard normal distribution, but has heavier tails. Its exact shape depends on the degrees of freedom. The heavier tails account for the extra uncertainty caused by estimating the variance from small samples.
-
-For a two-sided test with $\alpha=0.05$, place $\alpha/2=0.025$ in each tail. From the t-table:
+For a two-sided test with $\alpha=0.05$, the critical value is:
 
 $$
 t_{0.025,18}=2.101
 $$
 
-Therefore, the non-rejection region is:
+Because $|t_0|=2.20>2.101$, reject $H_0$. There is statistically significant evidence of a difference between the two population means.
 
-$$
--2.101\leq t_0\leq2.101
-$$
-
-and the rejection region is:
-
-$$
-t_0<-2.101
-\quad\text{or}\quad
-t_0>2.101
-$$
-
-Because:
-
-$$
-t_0=-2.20<-2.101
-$$
-
-the observed statistic lies in the lower rejection region. Therefore:
-
-- Reject $H_0$ at the 5% significance level.
-- Conclude that there is statistically significant evidence of a difference between the two population means.
-- The t-test reaches the same practical conclusion as the earlier illustrative Z-test.
-
-It is possible for $H_0$ to be true and for $t_0$ to fall outside the critical boundaries, but under $H_0$ this occurs only 5% of the time when the test assumptions hold. That probability is the test's Type I error rate.
-
-### Fixed-Level and P-Value Decisions
-
-The two approaches use the same evidence and give the same decision when the same $\alpha$ is used:
-
-- **Fixed significance level:** Compare $|t_0|$ with the critical value $t_{\alpha/2,\nu}$. Reject $H_0$ when $|t_0|>t_{\alpha/2,\nu}$.
-- **P-value:** Calculate the two-tail probability beyond $|t_0|$. Reject $H_0$ when $\text{P-value}\leq\alpha$.
-
-## P-Value for the Pooled t-Test
-
-For the Portland cement test:
-
-$$
-t_0=-2.20, \qquad \nu=18
-$$
-
-Because the alternative hypothesis is two-sided, the P-value includes both tails of the t-distribution:
+The two-sided P-value is:
 
 $$
 \text{P-value}
-=P\left(|T_{18}|\geq|t_0|\right)
-=2P\left(T_{18}\geq2.20\right)
+=P\left(|T_{18}|\geq2.20\right)
+\approx0.042
 $$
 
-Statistical software gives the exact result:
-
-$$
-\text{P-value}\approx0.042
-$$
-
-Since $0.042<0.05$, reject $H_0$ at the 5% significance level. The result is statistically significant, although it would not be significant at the stricter 1% level.
-
-> The P-value is not the probability that rejecting $H_0$ is wrong. It is the probability, assuming $H_0$ is true, of obtaining a test statistic at least as extreme as the observed statistic.
-
-### Approximating the P-Value With a t-Table
-
-Most t-tables list only selected positive t-values and their upper-tail probabilities. First use the absolute value:
-
-$$
-|t_0|=2.20
-$$
-
-In the row for 18 degrees of freedom, the observed value is bracketed by:
+This is significant at the 5% level, but not at the stricter 1% level. A t-table brackets the result as follows:
 
 $$
 t_{0.025,18}=2.101<2.20<2.552=t_{0.01,18}
 $$
 
-Therefore, the one-tail probability satisfies:
-
-$$
-0.01<P(T_{18}>2.20)<0.025
-$$
-
-Doubling both bounds for the two-sided test gives:
+so:
 
 $$
 0.02<\text{P-value}<0.05
 $$
 
-The exact software value, approximately 0.042, lies inside these bounds.
+#### Computer output
 
-## Computer Two-Sample t-Test Output
-
-The screenshots show output from Minitab and JMP. Both programs use the pooled standard deviation and produce the same inference, but they define the difference in opposite orders.
-
-### Minitab
-
-Minitab defines the difference as:
-
-$$
-\mu_{\text{modified}}-\mu_{\text{unmodified}}
-$$
-
-Its output reports:
+Minitab defines the difference as $\mu_{\text{modified}}-\mu_{\text{unmodified}}$ and reports:
 
 - Modified mortar: $n_1=10$, $\bar{y}_1=16.764$, $s_1=0.316$, and $SE(\bar{y}_1)=0.100$.
 - Unmodified mortar: $n_2=10$, $\bar{y}_2=17.042$, $s_2=0.248$, and $SE(\bar{y}_2)=0.078$.
-- Estimated difference: $16.764-17.042=-0.278$.
+- Estimated difference: $-0.278$.
 - Pooled standard deviation: $s_p=0.2843$.
-- Test statistic: $t_0=-2.19$.
-- Degrees of freedom: $18$.
+- Test statistic: $t_0=-2.19$ with $18$ degrees of freedom.
 - Two-sided P-value: $0.042$.
 - 95% confidence interval: $(-0.545073,-0.010927)$.
 
-The software statistic differs slightly from the hand-calculated value $-2.20$ because the software retains more decimal places.
+JMP reverses the subtraction, so it reports an estimated difference of $0.278$, a t-ratio of $2.186876$, and the sign-reversed interval $(0.010927,0.545073)$. Reversing the subtraction changes the signs but not the absolute t-value, two-sided P-value, or conclusion.
 
-### JMP
-
-JMP defines the difference in the reverse order:
-
-$$
-\mu_{\text{unmodified}}-\mu_{\text{modified}}
-$$
-
-Its output reports:
-
-- Estimated difference: $0.278000$.
-- Standard error of the difference: approximately $0.12712$.
-- t-ratio: $2.186876$.
-- Degrees of freedom: $18$.
-- Two-sided P-value, shown as $\operatorname{Prob}>|t|$: $0.0422$.
-- 95% confidence interval: $(0.010927,0.545073)$.
-
-The positive JMP statistic and interval do not contradict Minitab. Reversing the subtraction changes every sign:
-
-$$
-\mu_{\text{unmodified}}-\mu_{\text{modified}}
-=-\left(\mu_{\text{modified}}-\mu_{\text{unmodified}}\right)
-$$
-
-The absolute t-value, two-sided P-value, and hypothesis-test conclusion remain the same.
+</details>
 
 ## Checking the Pooled t-Test Assumptions
 
@@ -545,13 +549,19 @@ The pooled two-sample t-test assumes:
 
 ### Normal Probability Plots
 
-A normal probability plot can be drawn for each mortar sample.
+A normal probability plot can be drawn for each sample.
 
 - Data that lie approximately along a straight line provide reasonable evidence for normality.
-- Both Portland cement samples follow approximately straight lines, so the normality assumption appears reasonable.
 - The slope of a fitted line on a normal probability plot is proportional to the sample standard deviation.
 - Similar slopes for the two samples support the equal-variance assumption.
 - When judging straightness and slope by eye, emphasize the central part of the plot. A few tail observations can vary substantially in small samples.
+
+<details>
+<summary>Example: Checking the Portland cement assumptions</summary>
+
+Both Portland cement samples follow approximately straight lines on their normal probability plots, so the normality assumption appears reasonable. Their slopes are also similar, supporting the equal-variance assumption.
+
+</details>
 
 ### Importance of the Assumptions
 
@@ -626,7 +636,8 @@ $$
 s_p\sqrt{\frac{1}{n_1}+\frac{1}{n_2}}
 $$
 
-## Portland Cement 95% Confidence Interval
+<details>
+<summary>Example: Portland cement 95% confidence interval</summary>
 
 Define the difference in the same order as Minitab:
 
@@ -685,14 +696,14 @@ $$
 \quad\text{kgf/cm}^2
 $$
 
-### Interpretation
+#### Interpretation
 
 - The entire interval is negative because the modified-minus-unmodified mean difference is negative.
 - The data estimate that modified mortar has a mean tension bond strength between $0.01$ and $0.55\ \text{kgf/cm}^2$ lower than unmodified mortar.
 - Equivalently, unmodified mortar has a mean strength between $0.01$ and $0.55\ \text{kgf/cm}^2$ higher than modified mortar.
 - The point estimate of the difference is $-0.278\ \text{kgf/cm}^2$, with a margin of error of approximately $0.27\ \text{kgf/cm}^2$.
 
-### Connection With the Hypothesis Test
+#### Connection with the hypothesis test
 
 For the two-sided test:
 
@@ -706,6 +717,8 @@ At matching levels, a two-sided hypothesis test with significance $\alpha$ and a
 - If the confidence interval includes zero, fail to reject $H_0$.
 
 Here, the 95% confidence interval $(-0.545073,-0.010927)$ excludes zero. This agrees with the two-sided t-test result, $P\approx0.042<0.05$, so $H_0$ is rejected.
+
+</details>
 
 ## When the Two Population Variances Differ
 
@@ -773,7 +786,8 @@ $$
 
 The same Welch standard error and adjusted degrees of freedom are used for both the hypothesis test and the interval.
 
-## Nerve and Muscle Fluorescence Example
+<details>
+<summary>Example: Nerve and muscle fluorescence with Welch's t-test</summary>
 
 Accidental nerve injury during surgery can cause pain, numbness, or paralysis. The study described in the lecture used a fluorescently labeled peptide that binds to nerves, potentially making nerves easier for surgeons to identify.
 
@@ -813,7 +827,7 @@ The normal probability plots are approximately linear, so normality is not the m
 
 ![Nerve and muscle fluorescence data, normal probability comparison, and Welch test result](images/nerve_muscle_welch_test.png)
 
-### Hypotheses
+#### Hypotheses
 
 Let $\mu_1$ be mean normalized fluorescence for nerve tissue and $\mu_2$ be the mean for muscle tissue. The research question is one-sided:
 
@@ -825,7 +839,7 @@ $$
 H_1:\mu_1>\mu_2
 $$
 
-### Welch Test Calculation
+#### Welch test calculation
 
 The estimated mean difference is:
 
@@ -874,6 +888,8 @@ For hand calculation with a t-table, use $\nu=16$. The software output reports:
 - 95% lower confidence bound for $\mu_1-\mu_2$: approximately $613$.
 
 Because $0.007<0.05$, reject $H_0$. There is strong evidence that mean normalized fluorescence is greater for nerve tissue than for muscle tissue.
+
+</details>
 
 ## Inference on a Single Mean
 
@@ -927,7 +943,8 @@ $$
 \bar{y}\pm z_{\alpha/2}\frac{\sigma}{\sqrt{n}}
 $$
 
-## Fabric Breaking-Strength Example
+<details>
+<summary>Example: Fabric breaking strength with a one-sample Z-test</summary>
 
 A textile manufacturer will accept a fabric lot only if there is evidence that its mean breaking strength exceeds $200$ psi. Past experience supports a known population variance of:
 
@@ -993,6 +1010,8 @@ $$
 
 Do not double this probability because the alternative hypothesis is one-sided. Since $0.00256<0.05$, reject $H_0$ and conclude that the data provide strong evidence that the lot's mean breaking strength exceeds $200$ psi.
 
+</details>
+
 ### One-Sample t-Test: Variance Unknown
 
 When the population variance is unknown, replace $\sigma$ with the sample standard deviation $s$:
@@ -1032,18 +1051,6 @@ $$
 
 For a small sample, this procedure assumes that the population is approximately normal. Moderate departures from normality usually do not seriously affect the result, but strong skewness or outliers require care.
 
-### Choosing the Correct Tail
-
-The alternative hypothesis determines the rejection region and P-value calculation:
-
-| Alternative hypothesis | Test direction | P-value |
-| --- | --- | --- |
-| $H_1:\mu\ne\mu_0$ | Two-sided | Count both tails |
-| $H_1:\mu>\mu_0$ | Upper-tailed | Count only the upper tail |
-| $H_1:\mu<\mu_0$ | Lower-tailed | Count only the lower tail |
-
-Choose the direction before examining the data. A one-sided test concentrates all of $\alpha$ in one tail and should be used only when effects in the opposite direction would not support the research claim.
-
 ## Paired Experiments and the Paired t-Test
 
 The independent two-sample procedures above are appropriate when the observations in one group have no natural connection to observations in the other group. Some two-treatment experiments have a different structure: the two measurements are made on the **same experimental unit**, or units in the two groups are deliberately matched. These observations form pairs.
@@ -1057,7 +1064,8 @@ Examples include:
 
 Pairing can remove variability caused by differences among experimental units. The analysis therefore focuses on the **within-pair differences**, rather than treating the two sets of measurements as independent samples.
 
-### Hardness-Testing Experiment
+<details>
+<summary>Example: Hardness-testing experiment and paired design</summary>
 
 A Rockwell-type hardness tester presses a pointed tip into a metal specimen under a known force. The resulting indentation is used to determine relative hardness. The machine has two tips, and the experiment asks whether the tips produce different mean hardness readings.
 
@@ -1072,7 +1080,7 @@ A paired design provides better control of this nuisance variation:
 
 Each specimen is now a **block**, and the two tip readings within that specimen form a pair.
 
-### Observed Paired Data
+#### Observed paired data
 
 Define the difference consistently as:
 
@@ -1099,6 +1107,8 @@ where $y_{1j}$ and $y_{2j}$ are the Tip 1 and Tip 2 readings on specimen $j$.
 
 The signs depend on the chosen subtraction order. Had the differences been defined as Tip 2 minus Tip 1, the estimate and test statistic would change sign, but a two-sided P-value and the final decision would not change.
 
+</details>
+
 ### Statistical Model and the Blocking Effect
 
 A model for the response is:
@@ -1113,8 +1123,8 @@ $$
 
 where:
 
-- $\mu_i$ is the mean response associated with tip $i$.
-- $\beta_j$ is the effect of specimen, or block, $j$.
+- $\mu_i$ is the mean response associated with treatment $i$.
+- $\beta_j$ is the effect of block $j$.
 - $\varepsilon_{ij}$ is random measurement error, assumed independent with mean zero and common variance $\sigma^2$ in this model.
 
 For the $j$th pair:
@@ -1136,13 +1146,13 @@ $$
 \end{aligned}
 $$
 
-The specimen effect $\beta_j$ cancels because both tips are compared on the same specimen. Consequently, inference about $\mu_1-\mu_2$ can be based on the population mean of the differences, $\mu_d$.
+The block effect $\beta_j$ cancels because both treatments are compared within the same block. Consequently, inference about $\mu_1-\mu_2$ can be based on the population mean of the differences, $\mu_d$.
 
 This is the central benefit of pairing: comparison is made **within homogeneous blocks**, so variation between blocks does not obscure the treatment comparison.
 
 ### Hypotheses
 
-Testing whether the two tips have the same mean is equivalent to testing whether the mean paired difference is zero:
+Testing whether the two treatments have the same mean is equivalent to testing whether the mean paired difference is zero:
 
 $$
 H_0:\mu_1=\mu_2
@@ -1218,7 +1228,20 @@ $$
 
 Equivalently, reject when the two-sided P-value is less than $\alpha$.
 
-### Hardness-Test Calculation
+### Confidence Interval for the Mean Paired Difference
+
+The $100(1-\alpha)\%$ confidence interval for $\mu_d=\mu_1-\mu_2$ is:
+
+$$
+\bar d
+\pm
+t_{\alpha/2,n-1}\frac{S_d}{\sqrt n}
+$$
+
+<details>
+<summary>Example: Hardness-test calculation and confidence interval</summary>
+
+#### Hypothesis test
 
 For the 10 observed differences:
 
@@ -1286,15 +1309,7 @@ the statistic is not in the rejection region. The two-sided P-value is approxima
 
 Failing to reject $H_0$ does not prove that the tips are identical. It means that differences still compatible with the data cannot be ruled out. A confidence interval describes those plausible differences.
 
-### Confidence Interval for the Mean Paired Difference
-
-The $100(1-\alpha)\%$ confidence interval for $\mu_d=\mu_1-\mu_2$ is:
-
-$$
-\bar d
-\pm
-t_{\alpha/2,n-1}\frac{S_d}{\sqrt n}
-$$
+#### Confidence interval
 
 For the hardness data, the 95% interval is:
 
@@ -1322,7 +1337,14 @@ $$
 
 The interval includes zero, agreeing with the hypothesis-test decision. Here $0.86$ is the **margin of error**, or interval half-width; the total interval width is approximately $1.72$.
 
+</details>
+
 ## Why Pairing Can Increase Precision
+
+Pairing can reduce the standard error by removing nuisance variation between matched units or blocks. Its benefit is greatest when measurements within a pair are strongly and positively related.
+
+<details>
+<summary>Example: Precision gained by pairing the hardness data</summary>
 
 To see what is gained by pairing, suppose the same observations were incorrectly analyzed as two independent samples with equal variances. The sample means would still be:
 
@@ -1386,9 +1408,11 @@ times as large.
 
 The apparently larger number of degrees of freedom in the independent analysis does not compensate for its inflated variance estimate.
 
+</details>
+
 ### Variance Explanation
 
-Under the paired model, specimen effects contribute to the variation of readings across specimens. If the block effects are treated as fixed and centered around their mean, the expected pooled variance from an independent-samples analysis contains both measurement error and block variation:
+Under the paired model, block effects contribute to the variation of readings across blocks. If the block effects are treated as fixed and centered around their mean, the expected pooled variance from an independent-samples analysis contains both measurement error and block variation:
 
 $$
 E(S_p^2)
@@ -1401,16 +1425,16 @@ $$
 
 With the common constraint $\bar\beta=0$, this becomes:
 
-$
+$$
 E(S_p^2)
 =
 \sigma^2
 +
 \frac{1}{n-1}
 \sum_{j=1}^{n}\beta_j^2
-$
+$$
 
-The second term is nuisance variation among specimens. It inflates the error estimate when the blocking is ignored. In the paired differences, the block effect cancels, leaving the comparison to depend only on within-specimen variation. This is why blocking is called a **noise-reduction design technique**.
+The second term is nuisance variation among blocks. It inflates the error estimate when the blocking is ignored. In the paired differences, the block effect cancels, leaving the comparison to depend only on within-block variation. This is why blocking is called a **noise-reduction design technique**.
 
 Another way to express the same idea is through within-pair correlation. If the two measurements have standard deviations $\sigma_1$ and $\sigma_2$ and correlation $\rho$, then:
 
@@ -1422,7 +1446,7 @@ Another way to express the same idea is through within-pair correlation. If the 
 
 Good matching usually creates positive correlation, so the last term reduces the variance of the differences. Pairing provides little benefit when the match is weak and may be inefficient when the within-pair correlation is negative.
 
-## Assumptions of the Paired t-Test
+### Assumptions of the Paired t-Test
 
 The paired t-test assumes:
 
@@ -1435,4 +1459,3 @@ The paired t-test assumes:
 Normality concerns the distribution of the **differences**, not the two sets of raw measurements separately. With a larger number of pairs, the procedure is reasonably robust to moderate nonnormality, but severe skewness and influential outliers still require investigation.
 
 If normality of the differences is doubtful, useful alternatives may include a paired randomization test or the Wilcoxon signed-rank test, provided the assumptions of the selected alternative are appropriate.
-
